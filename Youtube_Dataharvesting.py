@@ -57,10 +57,25 @@ if select=="Task to Do":
              have to enter the channel id as input.""")
     st.write(""" It can helps you to take the the channel id from the youtube""")
     st.write("""URL - https://www.youtube.com/watch?v=3mrKjzrIiq4""")
+
     #Getting the channel id details
     channel_id=st.text_input("Enter the channel id: ").split()
+    st.markdown("<h4><FONT COLOR='#D2042D'>Queries Details:</h6>",unsafe_allow_html=True)
+    st.write("Query1:  What are the names of all the videos and their corresponding channels?")
+    st.write("Query2:  Which channels have the most number of videos, and how many videos do they have?")
+    st.write("Query3:  What are the top 10 most viewed videos and their respective channels?")
+    st.write("Query4:  How many comments were made on each video, and what are their corresponding video names?")
+    st.write("Query5:  Which videos have the highest number of likes, and what are their corresponding channel names?")
+    st.write("Query6:  What is the total number of likes and dislikes for each video, and what are their corresponding video names?")
+    st.write("Query7:  What is the total number of views for each channel, and what are their corresponding channel names?")
+    st.write("Query8:  What are the names of all the channels that have published videos in the year 2022?")
+    st.write("Query9:  What is the average duration of all videos in each channel, and what are their corresponding channel names?")
+    st.write("Query10:  Which videos have the highest number of comments, and what are their corresponding channel names?")
+    l=["Query1","Query2","Query3","Query4","Query5","Query6","Query7","Query8","Query9","Query10"]
+    r=st.multiselect("Select the query to display:",l)
     if st.button("Submit"):
-    #it will return the playlist details
+        
+        #it will return the playlist details
         def playlist_details(channel_id):
             channel_id=channel_id
             request = youtube.playlists().list(part="snippet,contentDetails",channelId=channel_id,
@@ -361,172 +376,151 @@ if select=="Task to Do":
                         val2=[[cid,text,aut,date,vid]]
                         query="insert into comment1 values(%s,%s,%s,%s,%s)"
                         mycursor.executemany(query,val2)
-                
-        def query1(channel_id):
-            channel=[]
-            video1=[]
-            connect= mysql.connector.connect(host="localhost",user="root",password="Mouleesh@009",autocommit=True)
-            mycursor=connect.cursor()
-            mycursor.execute("use youtube")
-            st.markdown("<h6><FONT COLOR='#D2042D'>QUERY_1 RESULT:</h6>",unsafe_allow_html=True)
-            st.write("Displays video names and their corresponding channel names")
-            for i in range(len(channel_id)):
-                query=f"""select Channel_Name from channel1 where Channel_Id = '{channel_id[i]}'"""
-                mycursor.execute(query)
-                name=mycursor.fetchall()
-                query=f"""select Video_Name from video1 where Channel_id = '{channel_id[i]}'"""
-                mycursor.execute(query)
-                video=mycursor.fetchall()
-                channel.append(name)
-                video1.append(video)
-            for i in range(len(channel)):
-                df=pd.DataFrame(data=video1[i])
-                st.write(channel[i])
-                st.dataframe(df)
-                
-        def query2():
-            query="""select Channel_Name,Channel_Video_Count from channel1 order by Channel_Video_Count desc"""
-            connect= mysql.connector.connect(host="localhost",user="root",password="Mouleesh@009",autocommit=True)
-            mycursor=connect.cursor()
-            mycursor.execute("use youtube")
-            mycursor.execute(query)
-            result=mycursor.fetchall()
-            df=pd.DataFrame(data=result,columns=["Channel_Name","Channel_Video_Count"])
-            st.markdown("<h6><FONT COLOR='#D2042D'>QUERY_2 RESULT:</h6>",unsafe_allow_html=True)
-            st.write("Displays channel name and their video counts")
-            st.dataframe(df)
-    
-        def query3(channel_id):
-            cha=[]
-            count=[]
-            connect= mysql.connector.connect(host="localhost",user="root",password="Mouleesh@009",autocommit=True)
-            mycursor=connect.cursor()
-            mycursor.execute("use youtube")
-            for i in range(len(channel_id)):
-                query=f"""select max(video1.Video_Views) as Maximum_Views,channel1.Channel_Name from video1 join channel1 where video1.Channel_id = '{channel_id[i]}' and channel1.Channel_Id = '{channel_id[i]}'"""
-                mycursor.execute(query)
-                vmax=mycursor.fetchall()
-                count.append(vmax[0][0])
-                cha.append(vmax[0][1])
-            df=pd.DataFrame(data=(cha,count),index=["Channel_Name","Maximum_View_Count"])
-            st.markdown("<h6><FONT COLOR='#D2042D'>QUERY_3 RESULT:</h6>",unsafe_allow_html=True)
-            st.write("Displays the channel names and their maximum view counts on each channel")
-            st.dataframe(df)
             
-        def query4():
-            query="""select Video_Name,Video_Comment_Count from video1"""
-            connect= mysql.connector.connect(host="localhost",user="root",password="Mouleesh@009",autocommit=True)
-            mycursor=connect.cursor()
-            mycursor.execute("use youtube")
-            mycursor.execute(query)
-            result=mycursor.fetchall()
-            df=pd.DataFrame(data=result,columns=["Video_Name","Comments_Count"])
-            st.markdown("<h6><FONT COLOR='#D2042D'>QUERY_4 RESULT:</h6>",unsafe_allow_html=True)
-            st.write("Displays all the video names in the table and their comment count")
-            st.dataframe(df)
-            
-        def query5(channel_id):
-            lmax=[]
-            name=[]
-            connect= mysql.connector.connect(host="localhost",user="root",password="Mouleesh@009",autocommit=True)
-            mycursor=connect.cursor()
-            mycursor.execute("use youtube")
-            for i in range(len(channel_id)):
-                query=f"""select max(video1.Video_Likes_Count) as Maximum_Views,channel1.Channel_Name from video1 join channel1 where video1.Channel_id = '{channel_id[i]}' and channel1.Channel_Id = '{channel_id[i]}'"""
-                mycursor.execute(query)
-                details=mycursor.fetchall()
-                lmax.append(details[0][0])
-                name.append(details[0][1])
-            df=pd.DataFrame(data=(name,lmax),index=["Channel_Name","Likes_Count"])
-            st.markdown("<h6><FONT COLOR='#D2042D'>QUERY_5 RESULT:</h6>",unsafe_allow_html=True)
-            st.write("Displays the channel name and maximum likes count on each channel")
-            st.dataframe(df)
-            
-        def query6():
-            query="""select Video_Name,Video_Likes_Count from video1"""
-            connect= mysql.connector.connect(host="localhost",user="root",password="Mouleesh@009",autocommit=True)
-            mycursor=connect.cursor()
-            mycursor.execute("use youtube")
-            mycursor.execute(query)
-            result=mycursor.fetchall()
-            df=pd.DataFrame(data=result,columns=["Video_Name","Video_Likes_Count"])
-            st.markdown("<h6><FONT COLOR='#D2042D'>QUERY_6 RESULT:</h6>",unsafe_allow_html=True)
-            st.write("Displays the video names and their likes count")
-            st.dataframe(df)
-            
-        def query7():
-            query="""select Channel_Name,Channel_Views from channel1"""
-            connect= mysql.connector.connect(host="localhost",user="root",password="Mouleesh@009",autocommit=True)
-            mycursor=connect.cursor()
-            mycursor.execute("use youtube")
-            mycursor.execute(query)
-            result=mycursor.fetchall()
-            df=pd.DataFrame(data=result,columns=["Channel_Name","Channel_Total_Views"])
-            st.markdown("<h6><FONT COLOR='#D2042D'>QUERY_7 RESULT:</h6>",unsafe_allow_html=True)
-            st.write("Displays the channel name and total views for each channel")
-            st.dataframe(df)
-                
-        def query8():
-            query="""select channel1.Channel_Name from channel1 join video1 where video1.Video_PublishedAt between "2022-01-01" and "2023-01-01";"""        
-            connect= mysql.connector.connect(host="localhost",user="root",password="Mouleesh@009",autocommit=True)
-            mycursor=connect.cursor()
-            mycursor.execute("use youtube")
-            mycursor.execute(query)
-            result=mycursor.fetchall()
-            result=list(set(result))
-            df=pd.DataFrame(data=result,columns=["Channel_Name"])
-            st.markdown("<h6><FONT COLOR='#D2042D'>QUERY_8 RESULT:</h6>",unsafe_allow_html=True)
-            st.write("Displays the channel name in which videos are published at the year of 2022")
-            st.dataframe(df)
-            
-        def query9(channel_id):
-            avgtime=[]
-            name=[]
-            connect= mysql.connector.connect(host="localhost",user="root",password="Mouleesh@009",autocommit=True)
-            mycursor=connect.cursor()
-            mycursor.execute("use youtube")
-            for i in range(len(channel_id)):
-                query=f"""select avg(video1.Video_Duration),channel1.Channel_Name from video1 join channel1 where video1.Channel_id = '{channel_id[i]}' and channel1.Channel_Id = '{channel_id[i]}'"""
-                mycursor.execute(query)
-                details=mycursor.fetchall()
-                avgtime.append(details[0][0])
-                name.append(details[0][1])
-            df=pd.DataFrame(data=(name,avgtime),index=['Channel_Name','Average_Duration(In seconds)'])
-            st.markdown("<h6><FONT COLOR='#D2042D'>QUERY_9 RESULT:</h6>",unsafe_allow_html=True)
-            st.write("Displays the Channel name and their average duration of all videos in eeach channel in seconds")
-            st.dataframe(df)
-         
-        def query10(channel_id):
-            name=[]
-            maxcomment=[]
-            connect= mysql.connector.connect(host="localhost",user="root",password="Mouleesh@009",autocommit=True)
-            mycursor=connect.cursor()
-            mycursor.execute("use youtube")
-            for i in range(len(channel_id)):
-                query=f"""select max(video1.Video_Comment_Count),channel1.Channel_Name from video1 join channel1 where video1.Channel_id = '{channel_id[i]}' and channel1.Channel_Id = '{channel_id[i]}';"""
-                mycursor.execute(query)
-                details=mycursor.fetchall()
-                maxcomment.append(details[0][0])
-                name.append(details[0][1])
-            df=pd.DataFrame(data=(name,maxcomment),index=["Channel_Name","Comment_Max_Count"])
-            st.markdown("<h6><FONT COLOR='#D2042D'>QUERY_10 RESULT:</h6>",unsafe_allow_html=True)
-            st.write("Displays the channel name and the maximum comment count on each channel")
-            st.dataframe(df)
-                   
-            
-        def execute_query(channel_id):
-            query1(channel_id)
-            query2()
-            query3(channel_id)
-            query4()
-            query5(channel_id)
-            query6()
-            query7()
-            query8()
-            query9(channel_id)
-            query10(channel_id)
-        
-        
+        def execute_query(channel_id,r):
+            for i in r:
+                if(i=="Query1"):
+                    channel=[]
+                    video1=[]
+                    connect= mysql.connector.connect(host="localhost",user="root",password="Mouleesh@009",autocommit=True)
+                    mycursor=connect.cursor()
+                    mycursor.execute("use youtube")
+                    st.markdown("<h6><FONT COLOR='#D2042D'>QUERY_1 RESULT:</h6>",unsafe_allow_html=True)
+                    st.write("Displays video names and their corresponding channel names")
+                    for i in range(len(channel_id)):
+                        query=f"""select Channel_Name from channel1 where Channel_Id = '{channel_id[i]}'"""
+                        mycursor.execute(query)
+                        name=mycursor.fetchall()
+                        query=f"""select Video_Name from video1 where Channel_id = '{channel_id[i]}'"""
+                        mycursor.execute(query)
+                        video=mycursor.fetchall()
+                        channel.append(name)
+                        video1.append(video)
+                    for i in range(len(channel)):
+                        df=pd.DataFrame(data=video1[i],columns=["Video Title"])
+                        st.write("Channel Name: ",channel[i][0])
+                        st.dataframe(df)
+                if(i=="Query2"):
+                    query="""select Channel_Name,Channel_Video_Count from channel1 order by Channel_Video_Count desc"""
+                    connect= mysql.connector.connect(host="localhost",user="root",password="Mouleesh@009",autocommit=True)
+                    mycursor=connect.cursor()
+                    mycursor.execute("use youtube")
+                    mycursor.execute(query)
+                    result=mycursor.fetchall()
+                    df=pd.DataFrame(data=result,columns=["Channel_Name","Channel_Video_Count"])
+                    st.markdown("<h6><FONT COLOR='#D2042D'>QUERY_2 RESULT:</h6>",unsafe_allow_html=True)
+                    st.write("Displays channel name and their video counts")
+                    st.dataframe(df)
+                if(i=="Query3"):
+                    cha=[]
+                    count=[]
+                    connect= mysql.connector.connect(host="localhost",user="root",password="Mouleesh@009",autocommit=True)
+                    mycursor=connect.cursor()
+                    mycursor.execute("use youtube")
+                    for i in range(len(channel_id)):
+                        query=f"""select max(video1.Video_Views) as Maximum_Views,channel1.Channel_Name from video1 join channel1 where video1.Channel_id = '{channel_id[i]}' and channel1.Channel_Id = '{channel_id[i]}'"""
+                        mycursor.execute(query)
+                        vmax=mycursor.fetchall()
+                        count.append(vmax[0][0])
+                        cha.append(vmax[0][1])
+                    
+                    df=pd.DataFrame(data=(cha,count),index=["Channel_Name","Maximum_View_Count"])
+                    st.markdown("<h6><FONT COLOR='#D2042D'>QUERY_3 RESULT:</h6>",unsafe_allow_html=True)
+                    st.write("Displays the channel names and their maximum view counts on each channel")
+                    st.dataframe(df)
+                if(i=="Query4"):
+                    query="""select Video_Name,Video_Comment_Count from video1"""
+                    connect= mysql.connector.connect(host="localhost",user="root",password="Mouleesh@009",autocommit=True)
+                    mycursor=connect.cursor()
+                    mycursor.execute("use youtube")
+                    mycursor.execute(query)
+                    result=mycursor.fetchall()
+                    df=pd.DataFrame(data=result,columns=["Video_Name","Comments_Count"])
+                    st.markdown("<h6><FONT COLOR='#D2042D'>QUERY_4 RESULT:</h6>",unsafe_allow_html=True)
+                    st.write("Displays all the video names in the table and their comment count")
+                    st.dataframe(df)
+                if(i=="Query5"):
+                    lmax=[]
+                    name=[]
+                    connect= mysql.connector.connect(host="localhost",user="root",password="Mouleesh@009",autocommit=True)
+                    mycursor=connect.cursor()
+                    mycursor.execute("use youtube")
+                    for i in range(len(channel_id)):
+                        query=f"""select max(video1.Video_Likes_Count) as Maximum_Views,channel1.Channel_Name from video1 join channel1 where video1.Channel_id = '{channel_id[i]}' and channel1.Channel_Id = '{channel_id[i]}'"""
+                        mycursor.execute(query)
+                        details=mycursor.fetchall()
+                        lmax.append(details[0][0])
+                        name.append(details[0][1])
+                    df=pd.DataFrame(data=(name,lmax),index=["Channel_Name","Likes_Count"])
+                    st.markdown("<h6><FONT COLOR='#D2042D'>QUERY_5 RESULT:</h6>",unsafe_allow_html=True)
+                    st.write("Displays the channel name and maximum likes count on each channel")
+                    st.dataframe(df)
+                if(i=="Query6"):
+                    query="""select Video_Name,Video_Likes_Count from video1"""
+                    connect= mysql.connector.connect(host="localhost",user="root",password="Mouleesh@009",autocommit=True)
+                    mycursor=connect.cursor()
+                    mycursor.execute("use youtube")
+                    mycursor.execute(query)
+                    result=mycursor.fetchall()
+                    df=pd.DataFrame(data=result,columns=["Video_Name","Video_Likes_Count"])
+                    st.markdown("<h6><FONT COLOR='#D2042D'>QUERY_6 RESULT:</h6>",unsafe_allow_html=True)
+                    st.write("Displays the video names and their likes count")
+                    st.dataframe(df)
+                if(i=="Query7"):
+                    query="""select Channel_Name,Channel_Views from channel1"""
+                    connect= mysql.connector.connect(host="localhost",user="root",password="Mouleesh@009",autocommit=True)
+                    mycursor=connect.cursor()
+                    mycursor.execute("use youtube")
+                    mycursor.execute(query)
+                    result=mycursor.fetchall()
+                    df=pd.DataFrame(data=result,columns=["Channel_Name","Channel_Total_Views"])
+                    st.markdown("<h6><FONT COLOR='#D2042D'>QUERY_7 RESULT:</h6>",unsafe_allow_html=True)
+                    st.write("Displays the channel name and total views for each channel")
+                    st.dataframe(df)
+                if(i=="Query8"):
+                    query="""select channel1.Channel_Name from channel1 join video1 where video1.Video_PublishedAt between "2022-01-01" and "2023-01-01";"""        
+                    connect= mysql.connector.connect(host="localhost",user="root",password="Mouleesh@009",autocommit=True)
+                    mycursor=connect.cursor()
+                    mycursor.execute("use youtube")
+                    mycursor.execute(query)
+                    result=mycursor.fetchall()
+                    result=list(set(result))
+                    df=pd.DataFrame(data=result,columns=["Channel_Name"])
+                    st.markdown("<h6><FONT COLOR='#D2042D'>QUERY_8 RESULT:</h6>",unsafe_allow_html=True)
+                    st.write("Displays the channel name in which videos are published at the year of 2022")
+                    st.dataframe(df)
+                if(i=="Query9"):
+                    avgtime=[]
+                    name=[]
+                    connect= mysql.connector.connect(host="localhost",user="root",password="Mouleesh@009",autocommit=True)
+                    mycursor=connect.cursor()
+                    mycursor.execute("use youtube")
+                    for i in range(len(channel_id)):
+                        query=f"""select avg(video1.Video_Duration),channel1.Channel_Name from video1 join channel1 where video1.Channel_id = '{channel_id[i]}' and channel1.Channel_Id = '{channel_id[i]}'"""
+                        mycursor.execute(query)
+                        details=mycursor.fetchall()
+                        avgtime.append(details[0][0])
+                        name.append(details[0][1])
+                    df=pd.DataFrame(data=(name,avgtime),index=['Channel_Name','Average_Duration(In seconds)'])
+                    st.markdown("<h6><FONT COLOR='#D2042D'>QUERY_9 RESULT:</h6>",unsafe_allow_html=True)
+                    st.write("Displays the Channel name and their average duration of all videos in eeach channel in seconds")
+                    st.dataframe(df)
+                if(i=="Query10"):
+                    name=[]
+                    maxcomment=[]
+                    connect= mysql.connector.connect(host="localhost",user="root",password="Mouleesh@009",autocommit=True)
+                    mycursor=connect.cursor()
+                    mycursor.execute("use youtube")
+                    for i in range(len(channel_id)):
+                        query=f"""select max(video1.Video_Comment_Count),channel1.Channel_Name from video1 join channel1 where video1.Channel_id = '{channel_id[i]}' and channel1.Channel_Id = '{channel_id[i]}';"""
+                        mycursor.execute(query)
+                        details=mycursor.fetchall()
+                        maxcomment.append(details[0][0])
+                        name.append(details[0][1])
+                    df=pd.DataFrame(data=(name,maxcomment),index=["Channel_Name","Comment_Max_Count"])
+                    st.markdown("<h6><FONT COLOR='#D2042D'>QUERY_10 RESULT:</h6>",unsafe_allow_html=True)
+                    st.write("Displays the channel name and the maximum comment count on each channel")
+                    st.dataframe(df)
         #it is used to call the functions and insert the values in mongodb
         def main(channel):
             for i in range(len(channel_id)):
@@ -547,22 +541,11 @@ if select=="Task to Do":
         
         
         a=main(channel_id)
-        if a:
-            st.markdown("<h6><FONT COLOR='#32CD32'>Datas are successfully uploaded in Mongo DB</h6>",unsafe_allow_html=True)
-            a=main_sql()
-            if a:
-                st.markdown("<h6><FONT COLOR='#32CD32'>Datas are successfully updated in MYSQL from Mongo DB</h6>",unsafe_allow_html=True)
-                st.markdown("<h6><FONT COLOR='#D2042D'>Queries Details:</h6>",unsafe_allow_html=True)
-                st.write("Query1: What are the names of all the videos and their corresponding channels?")
-                st.write("Query2: Which channels have the most number of videos, and how many videos do they have?")
-                st.write("Query3: What are the top 10 most viewed videos and their respective channels?")
-                st.write("Query4: How many comments were made on each video, and what are their corresponding video names?")
-                st.write("Query5: Which videos have the highest number of likes, and what are their corresponding channel names?")
-                st.write("Query6: What is the total number of likes and dislikes for each video, and what are their corresponding video names?")
-                st.write("Query7: What is the total number of views for each channel, and what are their corresponding channel names?")
-                st.write("Query8: What are the names of all the channels that have published videos in the year 2022?")
-                st.write("Query9: What is the average duration of all videos in each channel, and what are their corresponding channel names?")
-                st.write("Query10: Which videos have the highest number of comments, and what are their corresponding channel names?")
-                channel_Id=channel_ids()
-                execute_query(channel_Id)
-         
+        st.markdown("<h6><FONT COLOR='#32CD32'>Datas are successfully uploaded in Mongo DB</h6>",unsafe_allow_html=True)
+        a=main_sql()
+        st.markdown("<h6><FONT COLOR='#32CD32'>Datas are successfully updated in MYSQL from Mongo DB</h6>",unsafe_allow_html=True)
+        channel_Id=channel_ids()
+        execute_query(channel_Id,r)
+        st.markdown("<h2><FONT COLOR='#D2042D'>Thank You! !</h6>",unsafe_allow_html=True)
+
+                
